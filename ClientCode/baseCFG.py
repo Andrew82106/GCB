@@ -1,27 +1,53 @@
 import os
 import sys
 
-projectName = 'GCB'
+
+# 定义一个PathCFG类
+class PathCFG:
+    # 初始化函数
+    def __init__(self):
+        # 设置项目名称
+        self.projectName = 'GCB'
+        # 设置根路径
+        self.rootPth = None
+        # 获取当前路径
+        current_path = os.getcwd()
+        # 循环查找项目根路径
+        while True:
+            # 如果当前路径下存在项目名称的文件夹，则设置根路径
+            if os.path.exists(os.path.join(current_path, self.projectName)):
+                self.rootPth = os.path.join(current_path, self.projectName)
+                break
+            # 获取上一级路径
+            parent_path = os.path.dirname(current_path)
+            # 如果当前路径等于上一级路径，则退出循环
+            if current_path == parent_path:
+                break
+            # 更新当前路径
+            current_path = parent_path
+        # 如果找到根路径，则打印
+        if self.rootPth:
+            print(f"Project root path found: {self.rootPth}")
+        # 如果没有找到根路径，则抛出异常
+        else:
+            raise Exception("Unable to find the project root path.")
+
+        self.ClientCodePath = os.path.join(self.rootPth, "ClientCode")
+        self.WheelsPath = os.path.join(self.rootPth, "Wheels")
+
+        self._add_sys_pth()
+
+    def _add_sys_pth(self):
+        # 将项目的相关路径都加入sys.path中
+        sys.path.append(self.rootPth)
+        sys.path.append(self.ClientCodePath)
+        sys.path.append(self.WheelsPath)
+        # 将sys.path中的路径依次打印出来
+        print("current system path cache:\n" + '*'*40)
+        for pth in sys.path:
+            print(">" + str(pth))
+        print('*'*40)
 
 
-def find_root_path():
-    current_path = os.getcwd()
-    while True:
-        if os.path.exists(os.path.join(current_path, projectName)):
-            return os.path.join(current_path, projectName)
-        parent_path = os.path.dirname(current_path)
-        if current_path == parent_path:
-            return None
-        current_path = parent_path
-
-
-rootPth = find_root_path()
-if rootPth:
-    print(f"Project root path found: {rootPth}")
-else:
-    raise Exception("Unable to find the project root path.")
-
-ClientCodePath = os.path.join(rootPth, "ClientCode")
-WheelsPath = os.path.join(rootPth, "Wheels")
-print(f"ClientCodePath: {ClientCodePath}")
-print(f"WheelsPath: {WheelsPath}")
+if __name__ == '__main__':
+    C = PathCFG()
