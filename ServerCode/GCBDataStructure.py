@@ -6,71 +6,37 @@ cfg = PathCFG()
 hashTool = hashTool()
 
 
+class Transaction:
+    def __init__(self, sender, recipient, amount, time_stamp):
+        self.sender = sender
+        self.recipient = recipient
+        self.amount = amount
+        self.time_stamp = time_stamp
+        self.hash = hashTool.hashFunc(str(self.sender) + str(self.recipient) + str(self.amount) + str(self.time_stamp))
+
+
 class MerkleTree:
-    def __init__(self):
-        self.tree = []
+    def __init__(self, TransactionLst: List[Transaction], Type=0):
+        self.type = Type
+        # type=0则该保存全量交易
+        # type=1则该保存根节点交易哈希值
+        self.MTreeLst = TransactionLst if Type == 0 else None
+        self.rootHash = self._hashMTree(TransactionLst)
 
-    def add(self, data):
-        self.tree.append(data)
-
-    def _hash(self, data):
-        return hashTool.hashFunc(data)
-
-    def _build(self):
-        # 构建Merkle树
-        if len(self.tree) == 0:
-            return
-        # 计算叶子节点数量
-        num_leaves = len(self.tree)
-        # 计算层数
-        levels = 1
-        while 2 ** levels < num_leaves:
-            levels += 1
-
-        # 构建树
-        self.tree.insert(0, '')
-        for i in range(levels, 0, -1):
-            # 计算当前层节点数量
-            num_nodes = len(self.tree)
-            # 计算当前层节点索引
-            idx = 0
-            while idx < num_nodes:
-                # 计算当前节点哈希值
-                left_child = self.tree[idx]
-                right_child = self.tree[idx + 1] if idx + 1 < num_nodes else ''
-                self.tree[i - 1] = self._hash(left_child + right_child)
-                idx += 2
-
-    def getRoot(self):
-        # 获取Merkle树的根节点
-        self._build()
-        return self.tree[0]
-
-    def getProof(self, data):
-        # 获取数据在Merkle树中的证明
-        self._build()
-        idx = self.tree.index(data)
-        proof = []
-        for i in range(1, len(self.tree)):
-            if idx % 2 == 0:
-                proof.append(self.tree[i - 1])
-                idx = idx // 2
-            else:
-                proof.append(self.tree[i])
-                idx = (idx - 1) // 2
-
-        return proof
-
-    def verify(self, data, proof, root):
-        # 验证数据在Merkle树中的证明
-        hash_data = self._hash(data)
-        for node in proof:
-            if hash_data < node:
-                hash_data = self._hash(hash_data + node)
-            else:
-                hash_data = self._hash(node + hash_data)
-
-        return hash_data == root
+    @staticmethod
+    def _hashMTree(TransactionLst):
+        # 将self.MTree中的每个交易进行迭代式哈希，得到根节点哈希
+        lst = [instance.hash for instance in TransactionLst]
+        while len(lst) > 1:
+            # print(lst)
+            lst1 = []
+            for index in range(0, len(lst)-1, 2):
+                lst1.append(hashTool.hashFunc(lst[index] + lst[index + 1]))
+            if len(lst) % 2:
+                lst1.append(lst[-1])
+            lst = lst1
+        assert len(lst) == 1, 'Merkle Tree哈希错误'
+        return lst[0]
 
 
 class Block:
@@ -91,16 +57,16 @@ class Block:
 class Chain:
     def __init__(self, minerAddress):
         # super().__init__()
-        self.Blocks = []  # 区块存储位置
-        self.Blocks: List[Block]
+        self._Blocks = []  # 区块存储位置
+        self._Blocks: List[Block]
         # 添加类型提示，self.Blocks中的元素都是Block类型
-        self.difficulty = 4  # 挖矿难度
-        self.minerAddress = minerAddress  # 本链创建者
-        self.initHash = '0' * hashTool.hashLength  # 默认创世区块前哈希
+        self._difficulty = 4  # 挖矿难度
+        self._minerAddress = minerAddress  # 本链创建者
+        self._initHash = '0' * hashTool.hashLength  # 默认创世区块前哈希
         self._createGenesisBlock()  # 创建创世区块
 
     def _createGenesisBlock(self):
-        self.Blocks.append(Block(self.minerAddress, 0, self.initHash))
+        self._Blocks.append(Block(self._minerAddress, 0, self._initHash))
 
     def chainLocalSaver(self, chainPath):
         # 将链存到本地，以pkl的形式存储
@@ -109,16 +75,16 @@ class Chain:
 
     def _checkHash(self, Hash: str):
         # 校验哈希值是否合法
-        for index in range(self.difficulty):
+        for index in range(self._difficulty):
             if Hash[index] != '0':
                 return False
         return True
 
     def createNewBlock(self, data, nonce):
         # 向链中添加一个新区块
-        newBlock = Block(data, nonce, self.Blocks[-1].block_hash)
+        newBlock = Block(data, nonce, self._Blocks[-1].block_hash)
         if self._checkHash(newBlock.block_hash):
-            self.Blocks.append(newBlock)
+            self._Blocks.append(newBlock)
             return True
         else:
             return False
@@ -128,3 +94,11 @@ class Chain:
 if __name__ == '__main__':
     # 测试代码
     NewChain = Chain('123')
+
+    # 用for循环随机定义10个交易
+    TLst = []
+    for i in range(10):
+        TLst.append(Transaction(f'sender{i}', f'recipient{i**3}', i, time.time_ns()))
+
+    MT = MerkleTree(TLst)
+    print(MT.rootHash)
