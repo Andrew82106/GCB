@@ -5,4 +5,4 @@ read commit_message
 git add .
 # 使用提交信息中的变量
 git commit -m "$commit_message"
-git push origin master
+git push origin master:Andrew82106
