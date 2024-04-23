@@ -31,7 +31,7 @@ class hashTool:
 if __name__ == '__main__':
     # 测试
     HashTool = hashTool()
-    print(HashTool.hash("Hello, World!"))
+    print(HashTool.hash("Hello, World!"), type(HashTool.hash("Hello, World!")))
     print(HashTool.hash_dev("H"*2560000))
     print(HashTool.hash_dev("H"*16))
     print(HashTool.hash_dev("H"*16))
