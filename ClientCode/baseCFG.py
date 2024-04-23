@@ -32,8 +32,12 @@ class PathCFG:
         else:
             raise Exception("Unable to find the project root path.")
 
+        # 一级路径
         self.ClientCodePath = os.path.join(self.rootPth, "ClientCode")
         self.WheelsPath = os.path.join(self.rootPth, "Wheels")
+
+        # 二级路径
+        self.ClientCode_Utils = os.path.join(self.ClientCodePath, "Utils")
 
         self._add_sys_pth()
 
@@ -42,6 +46,7 @@ class PathCFG:
         sys.path.append(self.rootPth)
         sys.path.append(self.ClientCodePath)
         sys.path.append(self.WheelsPath)
+        sys.path.append(self.ClientCode_Utils)
         # 将sys.path中的路径依次打印出来
         print("current system path cache:\n" + '*'*40)
         for pth in sys.path:
