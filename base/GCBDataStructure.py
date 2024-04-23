@@ -1,5 +1,5 @@
 from baseCFG import PathCFG
-from Utils.hashTools import *
+from utils.hashTools import *
 import pickle
 from typing import List
 cfg = PathCFG()
