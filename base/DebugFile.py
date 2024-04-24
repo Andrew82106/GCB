@@ -1,7 +1,7 @@
 import random
-
 from GCBChainStructure import *
 from User import *
+from Miner import *
 
 # 创建账号GodAddress
 userPool = UserPool()
@@ -17,22 +17,21 @@ GCBChain.debugOutputChain()
 
 evalAddress = userPool.addNewUser()
 print("Eval Address:", evalAddress)
+minerAddress = userPool.addNewUser()
+print("Miner Address:", minerAddress)
 
 # 创建交易
 t0 = Transaction(GodAddress, evalAddress, 0, time.time_ns())
 
 # 挖矿
-while 1:
-    nonce = random.randint(1, 1000000)
-    MTree = MerkleTree(GCBChain.Blocks[-1].data.MTreeLst + [t0])
-    newBlock = Block(MTree, nonce, GCBChain.Blocks[-1].block_hash)
-    if newBlock.block_hash[0] == "0":
-        print("nonce:", nonce)
-        print("new block hash:", newBlock.block_hash)
-        if GCBChain.createNewBlock(t0, nonce):
-            break
-        else:
-            print("nonce error")
+m = Miner(minerAddress)
+nonce, newBlock = m.mine(GCBChain.Blocks[-1].data.MTreeLst, GCBChain.Blocks[-1].block_hash, t0)
+
+if GCBChain.createNewBlock(newBlock):
+    print("Mining Success")
+else:
+    print("Mining Failed")
+
 
 # 输出链信息进行调试
 GCBChain.debugOutputChain()

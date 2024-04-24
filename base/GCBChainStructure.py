@@ -42,7 +42,7 @@ class Chain:
         # 将创世交易添加到创世区块中
         self.Blocks.append(Block(genesisMerkleTree, 0, self._initHash))
 
-    def _checkHash(self, Hash: str):
+    def checkHash(self, Hash: str):
         # 校验哈希值是否合法
         for index in range(self._difficulty):
             if Hash[index] != '0':
@@ -54,12 +54,9 @@ class Chain:
         with open(chainPath, 'wb') as f:
             pickle.dump(self, f)
 
-    def createNewBlock(self, transaction: Transaction, nonce):
-        # 向链中添加一个新区块
-        MTree = MerkleTree(self.Blocks[-1].data.MTreeLst + [transaction])
-        newBlock = Block(MTree, nonce, self.Blocks[-1].block_hash)
+    def createNewBlock(self, newBlock):
         # 检查新区块的哈希值是否符合要求
-        if self._checkHash(newBlock.block_hash):
+        if self.checkHash(newBlock.block_hash):
             self.Blocks.append(newBlock)
             return True
         else:
