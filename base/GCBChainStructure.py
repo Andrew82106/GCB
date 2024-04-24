@@ -12,6 +12,7 @@ class Block:
         self.prehash = prehash  # 前哈希
         self.timestamp = time.time_ns()  # 区块时间戳
         self.data = data  # 区块数据项
+        self.data: MerkleTree
         self.nonce = nonce  # nonce
         self.block_hash = self._generate_hash()  # 本区块哈希
 
@@ -25,21 +26,21 @@ class Block:
 class Chain:
     def __init__(self, minerAddress):
         # super().__init__()
-        self._Blocks = []  # 区块存储位置
-        self._Blocks: List[Block]
+        self.Blocks = []  # 区块存储位置
+        self.Blocks: List[Block]
         # 添加类型提示，self.Blocks中的元素都是Block类型
-        self._difficulty = 4  # 挖矿难度
+        self._difficulty = 1  # 挖矿难度
         self._minerAddress = minerAddress  # 本链创建者
         self._initHash = '0' * hashTool.hashLength  # 默认创世区块前哈希
         self._createGenesisBlock()  # 创建创世区块
 
     def _createGenesisBlock(self):
-        self._Blocks.append(Block(self._minerAddress, 0, self._initHash))
-
-    def chainLocalSaver(self, chainPath):
-        # 将链存到本地，以pkl的形式存储
-        with open(chainPath, 'wb') as f:
-            pickle.dump(self, f)
+        # 创建创世交易
+        genesisTransaction = Transaction(self._minerAddress, '0', 0, time.time_ns())
+        # 创建创世区块的Merkle树
+        genesisMerkleTree = MerkleTree([genesisTransaction])
+        # 将创世交易添加到创世区块中
+        self.Blocks.append(Block(genesisMerkleTree, 0, self._initHash))
 
     def _checkHash(self, Hash: str):
         # 校验哈希值是否合法
@@ -48,14 +49,34 @@ class Chain:
                 return False
         return True
 
-    def createNewBlock(self, data, nonce):
+    def chainLocalSaver(self, chainPath):
+        # 将链存到本地，以pkl的形式存储
+        with open(chainPath, 'wb') as f:
+            pickle.dump(self, f)
+
+    def createNewBlock(self, transaction: Transaction, nonce):
         # 向链中添加一个新区块
-        newBlock = Block(data, nonce, self._Blocks[-1].block_hash)
+        MTree = MerkleTree(self.Blocks[-1].data.MTreeLst + [transaction])
+        newBlock = Block(MTree, nonce, self.Blocks[-1].block_hash)
+        # 检查新区块的哈希值是否符合要求
         if self._checkHash(newBlock.block_hash):
-            self._Blocks.append(newBlock)
+            self.Blocks.append(newBlock)
             return True
         else:
             return False
+
+    def debugOutputChain(self):
+        print(f"\n\n\nBlock Debug" + "||" * 100)
+        # 打印Chain中的所有信息
+        for index, block in enumerate(self.Blocks):
+            print(f"Block {index}" + ">"*50)
+            print(f'prehash: {block.prehash}')
+            print(f'timestamp: {block.timestamp}')
+            block.data.debugOutputChain()
+            print(f'nonce: {block.nonce}')
+            print(f'block_hash: {block.block_hash}')
+            print(">"*50)
+        print(f"Block Debug" + "||" * 100 + "\n\n\n")
 
 
 
