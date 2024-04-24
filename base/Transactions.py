@@ -1,5 +1,6 @@
 from utils.hashTools import *
 from typing import List
+
 hashTool = hashTool()
 
 
@@ -27,10 +28,33 @@ class MerkleTree:
         while len(lst) > 1:
             # print(lst)
             lst1 = []
-            for index in range(0, len(lst)-1, 2):
+            for index in range(0, len(lst) - 1, 2):
                 lst1.append(hashTool.hashFunc(lst[index] + lst[index + 1]))
             if len(lst) % 2:
                 lst1.append(lst[-1])
             lst = lst1
         assert len(lst) == 1, 'Merkle Tree哈希错误'
         return lst[0]
+
+    def queryTransaction(self, TransactionIndex):
+        if self.type == 1:
+            return None
+        # 根据交易索引查询交易
+        return self.MTreeLst[TransactionIndex]
+
+    def queryTransactionByHash(self, Hash):
+        if self.type == 1:
+            return None
+        # 根据交易哈希查询交易
+        for instance in self.MTreeLst:
+            if instance.hash == Hash:
+                return instance
+        return None
+
+    def debugOutputChain(self):
+        # 打印MTree中的所有信息
+        print("-" * 10, "Merkle Tree Debug Output", "-" * 10)
+        for instance in self.MTreeLst:
+            print(f"Sender: {instance.sender}, Recipient: {instance.recipient}, Amount: {instance.amount}, Time Stamp: {instance.time_stamp}, Hash: {instance.hash}")
+
+        print("-" * 10, "Merkle Tree Debug Output", "-" * 10)
