@@ -1,5 +1,5 @@
 import random
-from Utils.hashTools import *
+from utils.hashTools import *
 from typing import List
 hashTool = hashTool()
 
