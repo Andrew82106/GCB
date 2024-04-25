@@ -28,9 +28,9 @@ m = Miner(minerAddress)
 nonce, newBlock = m.mine(GCBChain.Blocks[-1].data.MTreeLst, GCBChain.Blocks[-1].block_hash, t0)
 
 if GCBChain.createNewBlock(newBlock):
-    print("Mining Success")
+    print("validate Mining result")
 else:
-    print("Mining Failed")
+    print("invalidate Mining result")
 
 
 # 输出链信息进行调试
