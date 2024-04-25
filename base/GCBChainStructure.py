@@ -1,5 +1,4 @@
 import os.path
-
 from pathconfig import Pathconfig
 from utils.hashTools import *
 from Transactions import Transaction, MerkleTree
@@ -22,6 +21,7 @@ class Block:
 
     Methods:
         _generate_hash: 生成哈希值
+        blockLocalSaver: 将block存到本地，以pkl的形式存储
     """
     def __init__(self, data, nonce, prehash):
         self.prehash = prehash  # 前哈希
@@ -36,6 +36,11 @@ class Block:
         hashLst = [self.prehash, str(self.timestamp), str(self.data), str(self.nonce)]
         hashStr = ''.join(hashLst)
         return hashTool.hashFunc(hashStr)
+
+    def blockLocalSaver(self, blockPath=cfg.blockchain_cache_path):
+        # 将block存到本地，以pkl的形式存储
+        with open(os.path.join(blockPath, 'block.pkl'), 'wb') as f:
+            pickle.dump(self, f)
 
 
 class Chain:
@@ -54,6 +59,7 @@ class Chain:
         chainLocalSaver: 将链存到本地，以pkl的形式存储(加载链放在类的外部，即loadChain函数)
         createNewBlock: 检查新区块的哈希值是否符合要求
         debugOutputChain: 打印Chain中的所有信息
+        fetchLatestBlock: 返回最新的区块
     """
     def __init__(self, minerAddress):
         # super().__init__()
@@ -106,12 +112,23 @@ class Chain:
             print(">"*50)
         print(f"Block Debug" + "||" * 100 + "\n\n\n")
 
+    def fetchLatestBlock(self):
+        # 返回最新的区块
+        return self.Blocks[-1]
+
 
 def loadChain(chainPth=cfg.blockchain_cache_path):
     # 从本地加载链
     with open(os.path.join(chainPth, 'chain.pkl'), 'rb') as f:
         chain = pickle.load(f)
     return chain
+
+
+def loadBlock(chainPth=cfg.blockchain_cache_path):
+    # 从本地加载区块
+    with open(os.path.join(chainPth, 'block.pkl'), 'rb') as f:
+        block = pickle.load(f)
+    return block
 
 
 if __name__ == '__main__':
