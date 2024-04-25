@@ -1,6 +1,7 @@
 import random
 from utils.hashTools import *
-from typing import List
+from wallet import *
+
 hashTool = hashTool()
 
 
@@ -13,6 +14,7 @@ class User:
     """
     def __init__(self, address_):
         self.address = address_
+        self.wallet = Wallet(address_)
 
 
 class UserPool:
