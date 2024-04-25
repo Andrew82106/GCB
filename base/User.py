@@ -5,11 +5,27 @@ hashTool = hashTool()
 
 
 class User:
+    """
+    User类用于表示用户，包括用户的地址信息。
+
+    Attributes:
+        address (str): 用户的地址信息。
+    """
     def __init__(self, address_):
         self.address = address_
 
 
 class UserPool:
+    """
+    UserPool类用于管理用户池，包括添加新用户、验证用户身份等操作。
+
+    Attributes:
+        userPool (list): 用户池，存储所有用户的信息。
+
+    Methods:
+        _addUser(address_): 添加新用户到用户池中。
+        addNewUser(): 添加新用户到用户池中，并返回新用户的地址。
+    """
     def __init__(self):
         self.userPool = []
         # 添加类型提示

@@ -10,6 +10,21 @@ def sha256_hash(obj):
 
 
 class hashTool:
+    """
+    hashTool类用于封装sha256哈希函数，并提供一些辅助功能。
+
+    Attributes:
+        hashLength (int): 哈希值的长度，默认为64。
+        hashFunc (function): 哈希函数，默认为sha256_hash。
+
+    Methods:
+        hash(obj): 计算obj的哈希值。
+        hash_dev(obj): 计算obj的哈希值，并返回计算时间。
+
+    Example:
+        hashTool = hashTool()
+        print(hashTool.hash("Hello, World!"))
+    """
     def __init__(self):
         self.hashLength = 64
         self.hashFunc = sha256_hash  # hashFunc和hashLength要对应

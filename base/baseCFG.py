@@ -4,6 +4,24 @@ import sys
 
 # 定义一个PathCFG类
 class PathCFG:
+    """
+    PathCFG类用于设置项目的路径。
+
+    Attributes:
+        projectName (str): 项目名称。
+        rootPth (str): 项目根路径。
+        basePath (str): 项目基础路径。
+        wheelsPath (str): 项目轮子路径。
+        utilsPath (str): 项目工具路径。
+
+    Methods:
+        _add_sys_pth(): 将项目的相关路径都加入sys.path中。
+
+    Example:
+        C = PathCFG()
+
+        print(C.projectName)  # 输出：GCB
+    """
     # 初始化函数
     def __init__(self):
         # 设置项目名称
@@ -39,8 +57,12 @@ class PathCFG:
         # 二级路径
         self.utilsPath = os.path.join(self.basePath, "utils")
 
+        # 区块链默认缓存路径
+        self.blockchain_cache_path = os.path.join(self.basePath, "blockchain_cache")
+
         # 添加系统路径
         self._add_sys_pth()
+
 
     def _add_sys_pth(self):
         # 将项目的相关路径都加入sys.path中

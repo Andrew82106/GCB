@@ -1,3 +1,5 @@
+import os.path
+
 from baseCFG import PathCFG
 from utils.hashTools import *
 from Transactions import Transaction, MerkleTree
@@ -8,6 +10,19 @@ hashTool = hashTool()
 
 
 class Block:
+    """
+    Block类用于表示区块链中的一个区块。
+
+    Attributes:
+        prehash (str): 前哈希
+        timestamp (int): 区块时间戳
+        data (MerkleTree): 区块数据项
+        nonce (int): nonce
+        block_hash (str): 本区块哈希
+
+    Methods:
+        _generate_hash: 生成哈希值
+    """
     def __init__(self, data, nonce, prehash):
         self.prehash = prehash  # 前哈希
         self.timestamp = time.time_ns()  # 区块时间戳
@@ -24,6 +39,22 @@ class Block:
 
 
 class Chain:
+    """
+    Chain类用于表示区块链。
+
+    Attributes:
+        Blocks (List[Block]): 区块列表
+        _difficulty (int): 挖矿难度
+        _minerAddress (str): 矿工地址
+        _initHash (str): 创世区块前哈希
+
+    Methods:
+        _createGenesisBlock: 创建创世区块
+        checkHash: 校验哈希值是否合法
+        chainLocalSaver: 将链存到本地，以pkl的形式存储(加载链放在类的外部，即loadChain函数)
+        createNewBlock: 检查新区块的哈希值是否符合要求
+        debugOutputChain: 打印Chain中的所有信息
+    """
     def __init__(self, minerAddress):
         # super().__init__()
         self.Blocks = []  # 区块存储位置
@@ -49,9 +80,9 @@ class Chain:
                 return False
         return True
 
-    def chainLocalSaver(self, chainPath):
+    def chainLocalSaver(self, chainPath=cfg.blockchain_cache_path):
         # 将链存到本地，以pkl的形式存储
-        with open(chainPath, 'wb') as f:
+        with open(os.path.join(chainPath, 'chain.pkl'), 'wb') as f:
             pickle.dump(self, f)
 
     def createNewBlock(self, newBlock):
@@ -76,6 +107,12 @@ class Chain:
         print(f"Block Debug" + "||" * 100 + "\n\n\n")
 
 
+def loadChain(chainPth=cfg.blockchain_cache_path):
+    # 从本地加载链
+    with open(os.path.join(chainPth, 'chain.pkl'), 'rb') as f:
+        chain = pickle.load(f)
+    return chain
+
 
 if __name__ == '__main__':
     # 测试代码
@@ -88,3 +125,12 @@ if __name__ == '__main__':
 
     MT = MerkleTree(TLst)
     print(MT.rootHash)
+
+    NewChain.chainLocalSaver()
+
+    Chain = loadChain()
+    Chain.debugOutputChain()
+
+    print("end")
+
+

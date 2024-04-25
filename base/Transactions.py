@@ -5,6 +5,16 @@ hashTool = hashTool()
 
 
 class Transaction:
+    """
+    Transaction类用于表示交易
+
+    Attributes:
+        sender (str): 发送方地址
+        recipient (str): 接收方地址
+        amount (float): 交易金额
+        time_stamp (str): 交易时间戳
+        hash (str): 交易哈希值
+    """
     def __init__(self, sender, recipient, amount, time_stamp):
         self.sender = sender
         self.recipient = recipient
@@ -14,6 +24,20 @@ class Transaction:
 
 
 class MerkleTree:
+    """
+    MerkleTree类用于表示Merkle Tree
+
+    Attributes:
+        type (int): 0表示保存全量交易，1表示保存根节点交易哈希值
+        MTreeLst (List[Transaction]): 保存交易信息的列表
+        rootHash (str): 根节点哈希值
+
+    Methods:
+        _hashMTree: 迭代式哈希MTree中的每个交易
+        queryTransaction: 根据交易索引查询交易
+        queryTransactionByHash: 根据交易哈希查询交易
+        debugOutputChain: 打印MTree中的所有信息
+    """
     def __init__(self, TransactionLst: List[Transaction], Type=0):
         self.type = Type
         # type=0则该保存全量交易
