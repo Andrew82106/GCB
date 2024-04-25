@@ -1,7 +1,10 @@
-import random
-from GCBChainStructure import *
-from User import *
-from Miner import *
+from base.pathconfig import Pathconfig
+cfg = Pathconfig()
+# 路径配置必须先写这两句
+
+from base.GCBChainStructure import *
+from base.User import *
+from base.Miner import *
 
 # 创建账号GodAddress
 userPool = UserPool()
