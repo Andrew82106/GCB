@@ -37,9 +37,9 @@ class Block:
         hashStr = ''.join(hashLst)
         return hashTool.hashFunc(hashStr)
 
-    def blockLocalSaver(self, blockPath=cfg.blockchain_cache_path):
+    def blockLocalSaver(self, blockPath=cfg.blockchain_cache_path, filename=f'block_timestamp_{time.time_ns()}.pkl'):
         # 将block存到本地，以pkl的形式存储
-        with open(os.path.join(blockPath, 'block.pkl'), 'wb') as f:
+        with open(os.path.join(blockPath, filename), 'wb') as f:
             pickle.dump(self, f)
 
 
@@ -86,9 +86,9 @@ class Chain:
                 return False
         return True
 
-    def chainLocalSaver(self, chainPath=cfg.blockchain_cache_path):
+    def chainLocalSaver(self, chainPath=cfg.blockchain_cache_path, filename=f'chain_timestamp_{time.time_ns()}.pkl'):
         # 将链存到本地，以pkl的形式存储
-        with open(os.path.join(chainPath, 'chain.pkl'), 'wb') as f:
+        with open(os.path.join(chainPath, filename), 'wb') as f:
             pickle.dump(self, f)
 
     def createNewBlock(self, newBlock):
@@ -112,21 +112,57 @@ class Chain:
             print(">"*50)
         print(f"Block Debug" + "||" * 100 + "\n\n\n")
 
-    def fetchLatestBlock(self):
+    @property
+    def latestBlock(self):
         # 返回最新的区块
         return self.Blocks[-1]
 
 
-def loadChain(chainPth=cfg.blockchain_cache_path):
+def loadChain(chainPth=cfg.blockchain_cache_path, filename=None):
+    """
+    加载区块链
+
+    :param chainPth: 区块链存储路径
+    :param filename: 区块链文件名
+    :return: 区块链
+    """
+    if filename is None:
+        # 从chainPth读取所有子文件名
+        filenames = os.listdir(chainPth)
+        mtime = 0
+        for name in filenames:
+            if 'chain' in name:
+                try:
+                    t = int(name.split('_')[-1].split('.')[0])
+                except:
+                    continue
+                if mtime < t:
+                    mtime = t
+                    filename = name
+    assert filename is not None, "No chain file found"
     # 从本地加载链
-    with open(os.path.join(chainPth, 'chain.pkl'), 'rb') as f:
+    with open(os.path.join(chainPth, filename), 'rb') as f:
         chain = pickle.load(f)
     return chain
 
 
-def loadBlock(chainPth=cfg.blockchain_cache_path):
+def loadBlock(chainPth=cfg.blockchain_cache_path, filename=None):
+    if filename is None:
+        # 从chainPth读取所有子文件名
+        filenames = os.listdir(chainPth)
+        mtime = 0
+        for name in filenames:
+            if 'block' in name:
+                try:
+                    t = int(name.split('_')[-1].split('.')[0])
+                except:
+                    continue
+                if mtime < t:
+                    mtime = t
+                    filename = name
+    assert filename is not None, "No block file found"
     # 从本地加载区块
-    with open(os.path.join(chainPth, 'block.pkl'), 'rb') as f:
+    with open(os.path.join(chainPth, filename), 'rb') as f:
         block = pickle.load(f)
     return block
 

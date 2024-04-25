@@ -25,7 +25,7 @@ t0 = Transaction(GodAddress, evalAddress, 0, time.time_ns())
 
 # 挖矿
 m = Miner(minerAddress)
-nonce, newBlock = m.mine(GCBChain.fetchLatestBlock().data.MTreeLst, GCBChain.fetchLatestBlock().block_hash, t0)
+nonce, newBlock = m.mine(GCBChain.latestBlock.data.MTreeLst, GCBChain.latestBlock.block_hash, t0)
 
 if GCBChain.createNewBlock(newBlock):
     print("validate Mining result")
