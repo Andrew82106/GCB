@@ -36,20 +36,6 @@ class server(Log, GCBPProtocol):
         self.backlog = backlog
         self.encoding = encoding
 
-    @staticmethod
-    def dump(info):
-        """
-        将输入的各种元素转化为可发送的字节码
-        """
-        info_bytes = pickle.dumps(info)
-        return info_bytes
-
-    def load(self, info):
-        """
-        将接收到的字节码转化为各种元素
-        """
-        return pickle.loads(info, encoding=self.encoding)
-
     def handle(self, address, client_sock):
         """
         处理特定客户端连接
@@ -58,13 +44,13 @@ class server(Log, GCBPProtocol):
         print('Got connection from {}'.format(address))
         while True:
             # 接收客户端发送的数据
-            msg = client_sock.recv(self.buffsize)
+            msg = self.load(client_sock)
             if not msg:
                 # 如果接收到的数据为空，则退出循环
                 break
             msg = self.load(msg)
             print(self.log(("Recieve Info:" + str(msg))))
-            client_sock.sendall(self.dump('query result: 1134522'))
+            self.send('query result: 1134522', client_sock)
 
         # 关闭客户端连接
         client_sock.close()

@@ -17,9 +17,6 @@ class client(Log, GCBPProtocol):
         encoding (str): 编码方式
 
     Methods:
-        dump(info): 将输入的各种元素转化为可发送的字节码
-        load(info): 将接收到的字节码转化为各种元素
-        send(info=f'Hello!I am client'): 发送信息
 
     Example:
         c = client()
@@ -35,39 +32,24 @@ class client(Log, GCBPProtocol):
         self.backlog = backlog
         self.encoding = encoding
 
-    @staticmethod
-    def dump(info):
+    def request(self, request_msg, msgType=1):
         """
-        将输入的各种元素转化为可发送的字节码
-        """
-        info_bytes = pickle.dumps(info)
-        return info_bytes
+        发送请求给服务器
 
-    def load(self, info):
-        """
-        将接收到的字节码转化为各种元素
-        """
-        return pickle.loads(info, encoding=self.encoding)
+        Args:
+            request_msg (str or list): 请求消息
+            msgType (int): 消息类型，默认为1
 
-    def send(self, info=f'Hello!I am client'):
+        Returns:
+            response (str or list): 服务器响应消息
         """
-        本函数为发送信息的底层函数，发送和接受的信息格式约定为GCB协议的格式，协议的解包方法需要在具体的类中自行封装
-        注：函数的输入值为非GCB协议格式，也即要发送的内容
-        """
-        print(self.log(f"send msg: {info}"))
-        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-            s.connect(self.ADDR)
-            print('connected')
-            info = self.dump(self.GCBmsg(info, 1))
-            s.send(info)
-            result = self.load(s.recv(self.buffsize))
-            assert self.check_format(result), "the format of the received msg is not correct"
-            print(f"recieve msg: {result}")
-
-        print("disconnected")
-        return result
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+            # 绑定地址
+            sock.connect(self.ADDR)
+            self.send(request_msg, sock, msgType)
+            res = self.load(sock)
+            return self.extract_msg(res)
 
 
 if __name__ == '__main__':
     c = client()
-    c.send(["Good Morning", 123]*10)

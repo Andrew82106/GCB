@@ -32,6 +32,9 @@ class boardcastServer(server):
         if ip not in self.IP_list:
             self.IP_list.append(ip)
 
+    def update_chain(self, newBlock: Block):
+        return self.chain.createNewBlock(newBlock)
+
     def handle(self, address, client_sock):
         """
         这个函数重写的目的在于实现广播服务器的具体功能
@@ -42,18 +45,21 @@ class boardcastServer(server):
         print('Got connection from {}'.format(address))
         while True:
             # 接收客户端发送的数据
-            msg = client_sock.recv(self.buffsize)
-            if not msg:
-                # 如果接收到的数据为空，则退出循环
-                break
-            msg = self.load(msg)
+            msg = self.load(client_sock)
             print(self.log(("Recieve Info:" + str(msg))))
 
             msg_type = self.extract_msg_type(msg)
             if msg_type == 1:
                 client_sock.sendall(self.dump(self.GCBmsg(self.chain, 0)))
             elif msg_type == 2:
-                pass
+                newBlock = self.extract_msg(msg)
+                status = self.update_chain(newBlock)
+                if status:
+                    print(self.log("update block successfully"))
+                    client_sock.sendall(self.dump(self.GCBmsg('update block successfully', 0)))
+                else:
+                    print(self.log("update block failed"))
+                    client_sock.sendall(self.dump(self.GCBmsg('update block failed', 0)))
 
         # 关闭客户端连接
         client_sock.close()
