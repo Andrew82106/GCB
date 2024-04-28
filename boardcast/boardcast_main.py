@@ -4,7 +4,7 @@ cfg = Pathconfig()
 
 from base.sockets.Server import server
 from base.GCBChainStructure import Chain, Block
-
+import socket
 
 class boardcastServer(server):
     """
@@ -38,28 +38,42 @@ class boardcastServer(server):
     def handle(self, address, client_sock):
         """
         这个函数重写的目的在于实现广播服务器的具体功能
+
         具体而言，收到信息后，该服务器首先需要识别接收到的信息是什么类型的
+
         对于请求查询类的信息，该服务器需要将本地的链直接发送给对方
+
         对于请求更新链的信息，该服务器需要将本地的链更新，并且广播给所有已知客户端
+
         """
         print('Got connection from {}'.format(address))
         while True:
             # 接收客户端发送的数据
             msg = self.load(client_sock)
             print(self.log(("Recieve Info:" + str(msg))))
+            if msg is None:
+                # TODO: 这里改的有点问题，当没有消息来的时候应该怎么办
+                sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                sock.bind(self.ADDR)
+                print('Bound to {}'.format(self.ADDR))
+                print('Server started.Listening...')
+                # 监听连接
+                sock.listen(self.backlog)
+                client_sock = sock
+                continue
 
             msg_type = self.extract_msg_type(msg)
             if msg_type == 1:
-                client_sock.sendall(self.dump(self.GCBmsg(self.chain, 0)))
+                self.send(self.chain, client_sock, 0)
             elif msg_type == 2:
                 newBlock = self.extract_msg(msg)
                 status = self.update_chain(newBlock)
                 if status:
                     print(self.log("update block successfully"))
-                    client_sock.sendall(self.dump(self.GCBmsg('update block successfully', 0)))
+                    self.send('update block successfully', client_sock, 0)
                 else:
                     print(self.log("update block failed"))
-                    client_sock.sendall(self.dump(self.GCBmsg('update block failed', 0)))
+                    self.send('update block failed', client_sock, 0)
 
         # 关闭客户端连接
         client_sock.close()

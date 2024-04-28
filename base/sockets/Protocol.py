@@ -75,27 +75,43 @@ class GCBPProtocol:
         """
         msg = self.dump(self.GCBmsg(msg, msgType))
         data_length = len(msg)
+        for _ in range(5):  # 尝试发送5次数据
+            # 发送数据长度
+            socket_.sendall(self.dump(data_length))
 
-        # 发送数据长度
-        socket_.sendall(self.dump(data_length))
+            # 接受确认信息
+            info = socket_.recv(self.buffsize)
+            # 将信息转为python对象
+            info = pickle.loads(info)
 
-        # 发送数据
-        socket_.sendall(msg)
+            if info == 1:
+                print(f"send data length {data_length}")
+                # 发送数据
+                socket_.sendall(msg)
+                # 接受确认信息
+                info1 = socket_.recv(self.buffsize)
+                # 将信息转为python对象
+                info1 = pickle.loads(info1)
+                if info1 == 1:
+                    print(f"send data {msg}")
+                    break
 
     def load(self, socket_):
         """
-        调用套接字，将接收到的字节码转化为各种元素
+        调用套接字接受数据，并且将接收到的字节码转化为各种元素
         该函数中加入了GCB协议规范的封装，因此在调用该函数的时候无需封装
         该函数的返回值符合GCB协议格式
         """
 
         # 接收数据长度
-        data_length = socket_.recv(10)
+        data_length = socket_.recv(self.buffsize)
         if not data_length:
             return None
+        print(f"datalength={data_length}")
         data_length = pickle.loads(data_length)
         print(data_length)
         assert isinstance(data_length, int), 'data_length is not a number'
+        socket_.sendall(self.dump(1))
 
         data = []
         # 根据数据长度，接收数据
@@ -111,6 +127,7 @@ class GCBPProtocol:
         msg = b"".join(data)
         # 防止缓冲区太小将数据截断
 
+        socket_.sendall(self.dump(1))
         # 返回转化后的数据
         result = pickle.loads(msg, encoding=self.encoding)
         assert self.check_format(result), 'The format of the received data is incorrect'

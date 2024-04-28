@@ -41,14 +41,16 @@ class client(Log, GCBPProtocol):
             msgType (int): 消息类型，默认为1
 
         Returns:
-            response (str or list): 服务器响应消息
+            response (str or list): 服务器响应消息，为标准GCB格式
         """
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
             # 绑定地址
             sock.connect(self.ADDR)
             self.send(request_msg, sock, msgType)
             res = self.load(sock)
-            return self.extract_msg(res)
+            # sock.close()
+            assert self.check_format(res), "Response format error"
+            return res
 
 
 if __name__ == '__main__':
