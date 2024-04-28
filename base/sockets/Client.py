@@ -16,7 +16,7 @@ class client:
             s.connect(self.ADDR)
             print('connected')
             cnt = 1
-            while cnt < 10:
+            while cnt < 1000000:
                 data = str(random.randint(1, 100))
                 s.send(data.encode(self.encoding))
                 recv_data = s.recv(self.buffsize)
