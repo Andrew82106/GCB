@@ -39,8 +39,6 @@ class boardcastServer(server):
         对于请求查询类的信息，该服务器需要将本地的链直接发送给对方
         对于请求更新链的信息，该服务器需要将本地的链更新，并且广播给所有已知客户端
         """
-        # 此处应该封装一个协议，用于存数据的一些细节
-        # 现在暂时都认为是查询类的信息
         print('Got connection from {}'.format(address))
         while True:
             # 接收客户端发送的数据
@@ -48,10 +46,14 @@ class boardcastServer(server):
             if not msg:
                 # 如果接收到的数据为空，则退出循环
                 break
-            msg_type = 1
             msg = self.load(msg)
             print(self.log(("Recieve Info:" + str(msg))))
-            client_sock.sendall(self.dump(self.chain))
+
+            msg_type = self.extract_msg_type(msg)
+            if msg_type == 1:
+                client_sock.sendall(self.GCBmsg(self.dump(self.chain), 0))
+            elif msg_type == 2:
+                pass
 
         # 关闭客户端连接
         client_sock.close()

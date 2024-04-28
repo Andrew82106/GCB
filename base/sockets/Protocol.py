@@ -7,7 +7,7 @@ class GCBPProtocol:
 
     Attributes:
         protocol_format (dict): 协议格式字典，包含以下键值对：
-        - 'msgType' (int): 消息类型，1表示请求，2表示更改链信息
+        - 'msgType' (int): 消息类型，0表示返回结果，1表示请求，2表示更改链信息
         - 'msgLength' (int): 消息长度
         - 'msgContent' (str): 消息内容
 
@@ -15,7 +15,7 @@ class GCBPProtocol:
         GCBmsg(msg, msgType): 生成符合GCB协议格式的消息
     """
     def __init__(self):
-        self.protocol_format = {
+        self.protocol_format_ = {
             'msgType': 0,
             'msgLength': 0,
             'msgContent': None,
@@ -24,9 +24,26 @@ class GCBPProtocol:
 
 
     def GCBmsg(self, msg, msgType):
-        self.protocol_format['msgContent'] = msg
-        self.protocol_format['msgLength'] = len(msg)
-        self.protocol_format['msgType'] = msgType
+        protocol_format = self.protocol_format_.copy()
+        protocol_format['msgContent'] = msg
+        protocol_format['msgLength'] = len(msg)
+        protocol_format['msgType'] = msgType
 
-        assert self.protocol_format['msgType'] in [1, 2], "msgType must be 1 or 2"
-        return self.protocol_format
+        assert protocol_format['msgType'] in [0, 1, 2], "msgType must be 0 or 1 or 2"
+        return protocol_format
+
+    @staticmethod
+    def extract_msg(msg):
+        return msg['msgContent']
+
+    @staticmethod
+    def extract_msg_type(msg):
+        return msg['msgType']
+
+    @staticmethod
+    def extract_msg_length(msg):
+        return msg['msgLength']
+
+    @staticmethod
+    def extract_time_stamp(msg):
+        return msg['timeStamp']

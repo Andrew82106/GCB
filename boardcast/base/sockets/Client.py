@@ -26,7 +26,8 @@ class client(Log, GCBPProtocol):
         c.send(["Good Morning", 123]*10)
     """
     def __init__(self, host='localhost', port=8848, buffsize=1024, backlog=5, encoding='utf-8'):
-        super().__init__()
+        Log.__init__(self)
+        GCBPProtocol.__init__(self)
         self.host = host
         self.port = port
         self.ADDR = (self.host, self.port)
@@ -56,8 +57,10 @@ class client(Log, GCBPProtocol):
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
             s.connect(self.ADDR)
             print('connected')
-            s.send(self.dump(info))
+            info = self.dump(self.GCBmsg(info, 1))
+            s.send(info)
             result = self.load(s.recv(self.buffsize))
+            result = self.extract_msg(result)
             print(f"recieve msg: {result}")
 
         print("disconnected")

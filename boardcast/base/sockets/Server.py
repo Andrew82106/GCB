@@ -27,7 +27,8 @@ class server(Log, GCBPProtocol):
         S.start()
     """
     def __init__(self, host='localhost', port=8848, buffsize=1024, backlog=5, encoding='utf-8'):
-        super().__init__()
+        Log.__init__(self)
+        GCBPProtocol.__init__(self)
         self.host = host
         self.port = port
         self.ADDR = (self.host, self.port)
