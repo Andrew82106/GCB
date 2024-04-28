@@ -1,9 +1,10 @@
 import socket
 from LogModule import Log
+from Protocol import GCBPProtocol
 import pickle
 
 
-class client(Log):
+class client(Log, GCBPProtocol):
     """
     client类用于实现一个基于socket的客户端
 
@@ -16,16 +17,14 @@ class client(Log):
         encoding (str): 编码方式
 
     Methods:
-        dump(info): 将输入的各种元素转化为可发送的字节码
-        load(info): 将接收到的字节码转化为各种元素
-        send(info=f'Hello!I am client'): 发送信息
 
     Example:
         c = client()
         c.send(["Good Morning", 123]*10)
     """
     def __init__(self, host='localhost', port=8848, buffsize=1024, backlog=5, encoding='utf-8'):
-        super().__init__()
+        Log.__init__(self)
+        GCBPProtocol.__init__(self)
         self.host = host
         self.port = port
         self.ADDR = (self.host, self.port)
@@ -33,33 +32,26 @@ class client(Log):
         self.backlog = backlog
         self.encoding = encoding
 
-    @staticmethod
-    def dump(info):
+    def request(self, request_msg, msgType=1):
         """
-        将输入的各种元素转化为可发送的字节码
-        """
-        info_bytes = pickle.dumps(info)
-        return info_bytes
+        发送请求给服务器
 
-    def load(self, info):
-        """
-        将接收到的字节码转化为各种元素
-        """
-        return pickle.loads(info, encoding=self.encoding)
+        Args:
+            request_msg (str or list): 请求消息
+            msgType (int): 消息类型，默认为1
 
-    def send(self, info=f'Hello!I am client'):
+        Returns:
+            response (str or list): 服务器响应消息，为标准GCB格式
         """
-        发送信息
-        """
-        print(self.log(f"send msg: {info}"))
-        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-            s.connect(self.ADDR)
-            print('connected')
-            s.send(self.dump(info))
-            print(f"recieve msg: {self.load(s.recv(self.buffsize))}")
-        print("disconnected")
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+            # 绑定地址
+            sock.connect(self.ADDR)
+            self.send(request_msg, sock, msgType)
+            res = self.load(sock)
+            # sock.close()
+            assert self.check_format(res), "Response format error"
+            return res
 
 
 if __name__ == '__main__':
     c = client()
-    c.send(["Good Morning", 123]*10)

@@ -1,9 +1,10 @@
 import socket
 from LogModule import Log
+from Protocol import GCBPProtocol
 import pickle
 
 
-class server(Log):
+class server(Log, GCBPProtocol):
     """
     server类用于实现一个基于socket的服务器
 
@@ -26,7 +27,8 @@ class server(Log):
         S.start()
     """
     def __init__(self, host='localhost', port=8848, buffsize=1024, backlog=5, encoding='utf-8'):
-        super().__init__()
+        Log.__init__(self)
+        GCBPProtocol.__init__(self)
         self.host = host
         self.port = port
         self.ADDR = (self.host, self.port)
@@ -34,41 +36,28 @@ class server(Log):
         self.backlog = backlog
         self.encoding = encoding
 
-    @staticmethod
-    def dump(info):
-        """
-        将输入的各种元素转化为可发送的字节码
-        """
-        info_bytes = pickle.dumps(info)
-        return info_bytes
-
-    def load(self, info):
-        """
-        将接收到的字节码转化为各种元素
-        """
-        return pickle.loads(info, encoding=self.encoding)
-
     def handle(self, address, client_sock):
         """
-        处理客户端连接
+        处理特定客户端连接
+        这里的代码只是样例，在具体的类中该函数被重载，使用不同的写法进行重写
         """
         print('Got connection from {}'.format(address))
         while True:
             # 接收客户端发送的数据
-            msg = client_sock.recv(self.buffsize)
+            msg = self.load(client_sock)
             if not msg:
                 # 如果接收到的数据为空，则退出循环
                 break
             msg = self.load(msg)
             print(self.log(("Recieve Info:" + str(msg))))
-            client_sock.sendall(self.dump('query result: 1134522'))
+            self.send('query result: 1134522', client_sock)
 
         # 关闭客户端连接
         client_sock.close()
 
     def start(self):
         """
-        启动服务器
+        启动服务器，开始接受信息
         """
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
             # 绑定地址
@@ -82,6 +71,7 @@ class server(Log):
                 client_sock, client_addr = sock.accept()
                 # 调用echo_handler处理客户端连接
                 self.handle(client_addr, client_sock)
+                print('send back message successfully')
 
 
 if __name__ == '__main__':

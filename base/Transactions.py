@@ -15,7 +15,7 @@ class Transaction:
         time_stamp (str): 交易时间戳
         hash (str): 交易哈希值
     """
-    def __init__(self, sender, recipient, amount, time_stamp):
+    def __init__(self, sender, recipient, amount, time_stamp=time.time_ns()):
         self.sender = sender
         self.recipient = recipient
         self.amount = amount
@@ -44,6 +44,25 @@ class MerkleTree:
         # type=1则该保存根节点交易哈希值
         self.MTreeLst = TransactionLst if Type == 0 else None
         self.rootHash = self._hashMTree(TransactionLst)
+
+    def __add__(self, other):
+        if self.type == 0:
+            # 如果两个MerkleTree的type都为0，则将它们的MTreeLst合并
+            if other.type == 0:
+                return MerkleTree(self.MTreeLst + other.MTreeLst, 0)
+            # 如果其中一个MerkleTree的type为1，则将另一个MerkleTree的MTreeLst转换为type=0
+            else:
+                return MerkleTree(self.MTreeLst + [other.rootHash], 0)
+        else:
+            # 如果两个MerkleTree的type都为1，则将它们的rootHash进行合并
+            if other.type == 1:
+                return MerkleTree([self.rootHash, other.rootHash], 1)
+            # 如果其中一个MerkleTree的type为0，则将另一个MerkleTree的rootHash转换为type=1
+            else:
+                return MerkleTree([self.rootHash, other.MTreeLst[0].hash], 1)
+
+    def __len__(self):
+        return len(self.MTreeLst) if self.type == 0 else 1
 
     @staticmethod
     def _hashMTree(TransactionLst):

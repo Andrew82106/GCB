@@ -54,6 +54,7 @@ class Pathconfig:
 
         # 二级路径
         self.utilsPath = os.path.join(self.basePath, "utils")
+        self.socketsPath = os.path.join(self.basePath, "sockets")
 
         # 区块链默认缓存路径
         self.blockchain_cache_path = os.path.join(self.basePath, "blockchain_cache")
@@ -67,6 +68,9 @@ class Pathconfig:
         sys.path.append(self.rootPth)
         sys.path.append(self.basePath)
         sys.path.append(self.utilsPath)
+        sys.path.append(self.socketsPath)
+        # 去重
+        sys.path = list(set(sys.path))
         # 将sys.path中的路径依次打印出来
         print("current system path cache:\n" + '*'*40)
         for pth in sys.path:

@@ -12,7 +12,7 @@ MAX_LISTEN = 5
 
 def tcpServer():
     # TCP服务
-    # with socket.socket() as s:
+    # with socket_.socket_() as s:
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         # 绑定服务器地址和端口
         s.bind(ADDR)

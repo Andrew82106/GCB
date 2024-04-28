@@ -1,3 +1,6 @@
 .vs
 .idea
 Trash
+boardcast/base
+client/base
+server/base
