@@ -71,6 +71,9 @@ class Chain:
         self._initHash = '0' * hashTool.hashLength  # 默认创世区块前哈希
         self._createGenesisBlock()  # 创建创世区块
 
+    def __len__(self):
+        return len(self.Blocks)
+
     def _createGenesisBlock(self):
         # 创建创世交易
         genesisTransaction = Transaction(self._minerAddress, '0', 0, time.time_ns())

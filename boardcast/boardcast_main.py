@@ -51,7 +51,7 @@ class boardcastServer(server):
 
             msg_type = self.extract_msg_type(msg)
             if msg_type == 1:
-                client_sock.sendall(self.GCBmsg(self.dump(self.chain), 0))
+                client_sock.sendall(self.dump(self.GCBmsg(self.chain, 0)))
             elif msg_type == 2:
                 pass
 
