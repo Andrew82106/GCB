@@ -1,31 +1,65 @@
 import socket
-import random
+from LogModule import Log
+import pickle
 
 
-class client:
-    def __init__(self):
-        self.host = ''
-        self.port = 8848
+class client(Log):
+    """
+    client类用于实现一个基于socket的客户端
+
+    Attributes:
+        host (str): 服务器地址
+        port (int): 服务器端口
+        ADDR (tuple): 服务器地址和端口的元组
+        buffsize (int): 缓冲区大小
+        backlog (int): 等待连接队列的最大长度
+        encoding (str): 编码方式
+
+    Methods:
+        dump(info): 将输入的各种元素转化为可发送的字节码
+        load(info): 将接收到的字节码转化为各种元素
+        send(info=f'Hello!I am client'): 发送信息
+
+    Example:
+        c = client()
+        c.send(["Good Morning", 123]*10)
+    """
+    def __init__(self, host='localhost', port=8848, buffsize=1024, backlog=5, encoding='utf-8'):
+        super().__init__()
+        self.host = host
+        self.port = port
         self.ADDR = (self.host, self.port)
-        self.buffsize = 1024
-        self.max_listen = 5
-        self.encoding = 'utf-8'
+        self.buffsize = buffsize
+        self.backlog = backlog
+        self.encoding = encoding
 
-    def start(self):
+    @staticmethod
+    def dump(info):
+        """
+        将输入的各种元素转化为可发送的字节码
+        """
+        info_bytes = pickle.dumps(info)
+        return info_bytes
+
+    def load(self, info):
+        """
+        将接收到的字节码转化为各种元素
+        """
+        return pickle.loads(info, encoding=self.encoding)
+
+    def send(self, info=f'Hello!I am client'):
+        """
+        发送信息
+        """
+        print(self.log(f"send msg: {info}"))
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
             s.connect(self.ADDR)
             print('connected')
-            cnt = 1
-            while cnt < 10:
-                data = str(random.randint(1, 100))
-                s.send(data.encode(self.encoding))
-                recv_data = s.recv(self.buffsize)
-                print(recv_data)
-                cnt += 1
-            s.close()
-            print("disconnected")
+            s.send(self.dump(info))
+            print(f"recieve msg: {self.load(s.recv(self.buffsize))}")
+        print("disconnected")
 
 
 if __name__ == '__main__':
     c = client()
-    c.start()
+    c.send(["Good Morning", 123]*10)
