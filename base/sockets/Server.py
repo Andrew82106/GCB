@@ -52,7 +52,8 @@ class server(Log, GCBPProtocol):
 
     def handle(self, address, client_sock):
         """
-        处理客户端连接
+        处理特定客户端连接
+        这里的代码只是样例，在具体的类中该函数被重载，使用不同的写法进行重写
         """
         print('Got connection from {}'.format(address))
         while True:
@@ -70,7 +71,7 @@ class server(Log, GCBPProtocol):
 
     def start(self):
         """
-        启动服务器
+        启动服务器，开始接受信息
         """
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
             # 绑定地址

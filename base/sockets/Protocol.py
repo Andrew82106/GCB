@@ -47,3 +47,8 @@ class GCBPProtocol:
     @staticmethod
     def extract_time_stamp(msg):
         return msg['timeStamp']
+
+    @staticmethod
+    def check_format(GCBmsg):
+        # 检查输入值GCBmsg是否符合GCB格式
+        return isinstance(GCBmsg, dict) and all(key in GCBmsg for key in ('msgType', 'msgLength', 'msgContent', 'timeStamp'))
