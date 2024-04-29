@@ -1,8 +1,9 @@
 import time
 import pickle
+from LogModule import Log
 
 
-class GCBPProtocol:
+class GCBPProtocol(Log):
     """
     GCBPProtocol类用于定义GCB服务器之间交换信息的协议格式
 
@@ -16,10 +17,7 @@ class GCBPProtocol:
         msg_per_length (int): TCP发送消息时每条消息的单位长度限制
 
     Methods:
-        GCBmsg(msg, msgType): 生成符合GCB协议格式的消息
-        dump(info): 将输入的各种元素转化为可发送的字节码
-        send(msg, socket_): 发送信息，按照规定的大小发送数据段，同时在发送数据段之前先发送数据的数量
-        load(socket_): 调用套接字，将接收到的字节码转化为各种元素
+        GCBmsg(msg, msgType): 生成符合GCB协议格式的消息=
         extract_msg(msg): 提取消息内容
         extract_msg_type(msg): 提取消息类型
         extract_msg_length(msg): 提取消息长度
@@ -29,6 +27,7 @@ class GCBPProtocol:
     """
 
     def __init__(self):
+        super().__init__()
         self.protocol_format_ = {
             'msgType': 0,
             'msgLength': 0,
@@ -59,79 +58,6 @@ class GCBPProtocol:
         assert protocol_format['msgType'] in [0, 1, 2], "msgType must be 0 or 1 or 2"
         return protocol_format
 
-    @staticmethod
-    def dump(info):
-        """
-        将输入的各种元素转化为可发送的字节码
-        """
-        info_bytes = pickle.dumps(info)
-        return info_bytes
-
-    def send(self, msg, socket_, msgType=1):
-        """
-        发送信息，按照规定的大小发送数据段，同时在发送数据段之前先发送数据的数量
-        该函数中加入了GCB协议规范的封装，因此在调用该函数的时候无需封装
-        在外部调用的时候不能忘了关闭套接字
-        """
-        msg = self.dump(self.GCBmsg(msg, msgType))
-        data_length = len(msg)
-        for _ in range(5):  # 尝试发送5次数据
-            # 发送数据长度
-            socket_.sendall(self.dump(data_length))
-
-            # 接受确认信息
-            info = socket_.recv(self.buffsize)
-            # 将信息转为python对象
-            info = pickle.loads(info)
-
-            if info == 1:
-                print(f"send data length {data_length}")
-                # 发送数据
-                socket_.sendall(msg)
-                # 接受确认信息
-                info1 = socket_.recv(self.buffsize)
-                # 将信息转为python对象
-                info1 = pickle.loads(info1)
-                if info1 == 1:
-                    print(f"send data {msg}")
-                    break
-
-    def load(self, socket_):
-        """
-        调用套接字接受数据，并且将接收到的字节码转化为各种元素
-        该函数中加入了GCB协议规范的封装，因此在调用该函数的时候无需封装
-        该函数的返回值符合GCB协议格式
-        """
-
-        # 接收数据长度
-        data_length = socket_.recv(self.buffsize)
-        if not data_length:
-            return None
-        print(f"datalength={data_length}")
-        data_length = pickle.loads(data_length)
-        print(data_length)
-        assert isinstance(data_length, int), 'data_length is not a number'
-        socket_.sendall(self.dump(1))
-
-        data = []
-        # 根据数据长度，接收数据
-        while data_length > 0:
-            if data_length > self.buffsize:
-                temp = socket_.recv(self.buffsize)
-            else:
-                temp = socket_.recv(data_length)
-            data.append(temp)
-            data_length -= len(temp)
-
-        # 将接收到的数据转化为字符串
-        msg = b"".join(data)
-        # 防止缓冲区太小将数据截断
-
-        socket_.sendall(self.dump(1))
-        # 返回转化后的数据
-        result = pickle.loads(msg, encoding=self.encoding)
-        assert self.check_format(result), 'The format of the received data is incorrect'
-        return result
 
     @staticmethod
     def extract_msg(msg):

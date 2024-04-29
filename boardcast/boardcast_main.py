@@ -6,6 +6,7 @@ from base.sockets.Server import server
 from base.GCBChainStructure import Chain, Block
 import socket
 
+
 class boardcastServer(server):
     """
     boardcastServer用于实现广播站服务器功能，即：
@@ -46,28 +47,24 @@ class boardcastServer(server):
         对于请求更新链的信息，该服务器需要将本地的链更新，并且广播给所有已知客户端
 
         """
-        print('Got connection from {}'.format(address))
+        print(self.log('Handle connection from {}'.format(address)))
         while True:
             # 接收客户端发送的数据
             msg = self.load(client_sock)
-            print(self.log(("Recieve Info:" + str(msg))))
+            print(self.log(("Recieve Info:" + str(msg)[:10] + "....")))
             if msg is None:
                 # TODO: 这里改的有点问题，当没有消息来的时候应该怎么办
-                sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                sock.bind(self.ADDR)
-                print('Bound to {}'.format(self.ADDR))
-                print('Server started.Listening...')
-                # 监听连接
-                sock.listen(self.backlog)
-                client_sock = sock
-                continue
+                print(self.log("Recieve None, maybe client close"))
+                break
 
             msg_type = self.extract_msg_type(msg)
             if msg_type == 1:
+                print(self.log(f"send chain to client {address}"))
                 self.send(self.chain, client_sock, 0)
             elif msg_type == 2:
                 newBlock = self.extract_msg(msg)
                 status = self.update_chain(newBlock)
+                print(self.log(f"update chain from client {address}"))
                 if status:
                     print(self.log("update block successfully"))
                     self.send('update block successfully', client_sock, 0)
@@ -80,8 +77,7 @@ class boardcastServer(server):
 
 
 if __name__ == '__main__':
-    generic_block = Block('', 100, '0')
-    debug_chain = Chain([Block])
+    debug_chain = Chain('000000000')
     boardcast_server = boardcastServer(debug_chain)
     boardcast_server.start()
 
