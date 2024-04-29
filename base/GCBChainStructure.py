@@ -69,7 +69,7 @@ class Chain:
         self.Blocks = []  # 区块存储位置
         self.Blocks: List[Block]
         # 添加类型提示，self.Blocks中的元素都是Block类型
-        self._difficulty = 1  # 挖矿难度
+        self._difficulty = 2  # 挖矿难度
         self._minerAddress = minerAddress  # 本链创建者
         self._initHash = '0' * hashTool.hashLength  # 默认创世区块前哈希
         self._createGenesisBlock()  # 创建创世区块

@@ -1,10 +1,12 @@
 import socket
+import time
+
 from LogModule import Log
 from Protocol import GCBPProtocol
-import pickle
+from WebConnection import webConnection
 
 
-class client(Log, GCBPProtocol):
+class client(webConnection, GCBPProtocol):
     """
     client类用于实现一个基于socket的客户端
 
@@ -23,7 +25,7 @@ class client(Log, GCBPProtocol):
         c.send(["Good Morning", 123]*10)
     """
     def __init__(self, host='localhost', port=8848, buffsize=1024, backlog=5, encoding='utf-8'):
-        Log.__init__(self)
+        webConnection.__init__(self)
         GCBPProtocol.__init__(self)
         self.host = host
         self.port = port
@@ -32,26 +34,27 @@ class client(Log, GCBPProtocol):
         self.backlog = backlog
         self.encoding = encoding
 
-    def request(self, request_msg, msgType=1):
+    def request(self, request_msg):
         """
         发送请求给服务器
 
         Args:
             request_msg (str or list): 请求消息
-            msgType (int): 消息类型，默认为1
 
         Returns:
-            response (str or list): 服务器响应消息，为标准GCB格式
+            response (str or list): 服务器响应消息
         """
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
             # 绑定地址
             sock.connect(self.ADDR)
-            self.send(request_msg, sock, msgType)
-            res = self.load(sock)
-            # sock.close()
-            assert self.check_format(res), "Response format error"
-            return res
+            self.send(request_msg, sock)
+            result = self.receive(sock)
+            return result
 
 
 if __name__ == '__main__':
     c = client()
+    for _ in range(100):
+        time.sleep(0.5)
+        res = c.request(["Good Morning", 123111]*10000)
+        print(res)

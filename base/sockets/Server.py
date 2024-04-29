@@ -1,10 +1,10 @@
 import socket
 from LogModule import Log
 from Protocol import GCBPProtocol
-import pickle
+from WebConnection import webConnection
 
 
-class server(Log, GCBPProtocol):
+class server(webConnection, GCBPProtocol):
     """
     server类用于实现一个基于socket的服务器
 
@@ -27,7 +27,7 @@ class server(Log, GCBPProtocol):
         S.start()
     """
     def __init__(self, host='localhost', port=8848, buffsize=1024, backlog=5, encoding='utf-8'):
-        Log.__init__(self)
+        webConnection.__init__(self)
         GCBPProtocol.__init__(self)
         self.host = host
         self.port = port
@@ -44,11 +44,10 @@ class server(Log, GCBPProtocol):
         print('Got connection from {}'.format(address))
         while True:
             # 接收客户端发送的数据
-            msg = self.load(client_sock)
+            msg = self.receive(client_sock)
             if not msg:
                 # 如果接收到的数据为空，则退出循环
                 break
-            msg = self.load(msg)
             print(self.log(("Recieve Info:" + str(msg))))
             self.send('query result: 1134522', client_sock)
 
@@ -62,16 +61,17 @@ class server(Log, GCBPProtocol):
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
             # 绑定地址
             sock.bind(self.ADDR)
-            print('Bound to {}'.format(self.ADDR))
-            print('Server started.Listening...')
+            print(self.log('Bound to {}'.format(self.ADDR)))
+            print(self.log('Server started.Listening...'))
             # 监听连接
             sock.listen(self.backlog)
             while True:
                 # 接受客户端连接
                 client_sock, client_addr = sock.accept()
+                print(self.log(("Accepted connection from {}".format(client_addr))))
                 # 调用echo_handler处理客户端连接
                 self.handle(client_addr, client_sock)
-                print('send back message successfully')
+                print(self.log('handle message successfully'))
 
 
 if __name__ == '__main__':

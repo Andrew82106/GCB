@@ -1,9 +1,8 @@
 import time
 import pickle
-from LogModule import Log
 
 
-class GCBPProtocol(Log):
+class GCBPProtocol:
     """
     GCBPProtocol类用于定义GCB服务器之间交换信息的协议格式
 
@@ -27,7 +26,6 @@ class GCBPProtocol(Log):
     """
 
     def __init__(self):
-        super().__init__()
         self.protocol_format_ = {
             'msgType': 0,
             'msgLength': 0,
@@ -38,6 +36,8 @@ class GCBPProtocol(Log):
         self.buffsize = 1024
         self.backlog = 5
         self.encoding = 'utf-8'
+        self.port = 8000
+        self.host = '127.0.0.1'
 
     def GCBmsg(self, msg, msgType):
         """
@@ -57,6 +57,14 @@ class GCBPProtocol(Log):
 
         assert protocol_format['msgType'] in [0, 1, 2], "msgType must be 0 or 1 or 2"
         return protocol_format
+
+
+    def dump(self, data):
+        assert self.check_format(data), "data must be a dict and contain keys 'msgType', 'msgLength', 'msgContent', 'timeStamp'"
+        return pickle.dumps(data)
+
+    def load(self, data):
+        return pickle.loads(data, encoding=self.encoding)
 
 
     @staticmethod
