@@ -1,4 +1,6 @@
 import socket
+import time
+
 from LogModule import Log
 from Protocol import GCBPProtocol
 from WebConnection import webConnection
@@ -38,7 +40,6 @@ class client(webConnection, GCBPProtocol):
 
         Args:
             request_msg (str or list): 请求消息
-            msgType (int): 消息类型，默认为1
 
         Returns:
             response (str or list): 服务器响应消息
@@ -47,11 +48,13 @@ class client(webConnection, GCBPProtocol):
             # 绑定地址
             sock.connect(self.ADDR)
             self.send(request_msg, sock)
-            res = self.receive(sock)
-            return res
+            result = self.receive(sock)
+            return result
 
 
 if __name__ == '__main__':
     c = client()
-    res = c.request(["Good Morning", 123111]*1000000)
-    print(res)
+    for _ in range(100):
+        time.sleep(0.5)
+        res = c.request(["Good Morning", 123111]*10000)
+        print(res)
