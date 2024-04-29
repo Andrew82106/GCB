@@ -2,7 +2,7 @@
 
 import requests
 import pickle
-from Protocol import GCBPProtocol
+from base.webconnnection.Protocol import GCBPProtocol
 
 
 class client(GCBPProtocol):

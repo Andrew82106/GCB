@@ -1,4 +1,4 @@
-from Protocol import GCBPProtocol
+from base.webconnnection.Protocol import GCBPProtocol
 from sanic.views import HTTPMethodView
 from sanic import raw, Sanic
 import pickle
@@ -11,6 +11,8 @@ class server(GCBPProtocol, HTTPMethodView):
     async def get(self, request):
         """
         客户端向服务器发送更新请求，服务器流式发送更新数据
+
+        此处测试数据为['data', '1111', '2222']
         :param request:
         :param data:
         :return:
@@ -19,10 +21,8 @@ class server(GCBPProtocol, HTTPMethodView):
         # 将data转化为字节码，使用pickle
         data = self.dump(['data', '1111', '2222'])
         await response.send(data)
-        # Optionally, you can explicitly end the stream by calling:
         await response.eof()
 
-    # You can also use async syntax
     async def post(self, request):
         """
         客户端发送更新请求

@@ -5,7 +5,7 @@ from base.pathconfig import Pathconfig
 
 cfg = Pathconfig()
 
-from base.sockets.Client import client
+from base.webconnnection.client import client
 from base.GCBChainStructure import Chain, Block
 from base.GCBChainStructure import Transaction, MerkleTree
 
@@ -17,11 +17,14 @@ class debug_client(client):
     def __init__(self):
         super().__init__()
 
-    def fetch(self, info='query for chain') -> Chain:
-        info = self.GCBmsg(info, 1)
-        res_ = self.request(info)
-        res_ = self.extract_msg(res_)
-        return res_
+    def query(self):
+        """
+        通过发送post请求，查询最新链
+        :return: 返回的链数据
+        """
+        r = self.get()
+        assert self.check_format(r), "check_format failed"
+        return self.extract_msg(r)
 
 
 class miner_client(client):
@@ -31,9 +34,8 @@ class miner_client(client):
     def __init__(self):
         super().__init__()
 
-    def mine(self, info='query for chain') -> Chain:
-        info = self.GCBmsg(info, 1)
-        res_ = self.request(info)
+    def mine(self) -> Chain:
+        res_ = self.get()
         res_ = self.extract_msg(res_)
         res_: Chain
         lastestBlock = res_.latestBlock
@@ -52,26 +54,29 @@ class miner_client(client):
         return newBlock
 
     def update(self, newBlock: Block):
-        res_ = c.request(newBlock, 2)
+        """
+        将挖出的块添加到链上
+        :param newBlock: 挖出的块，原数据
+        :return:
+        """
+        res_ = c.post(self.GCBmsg(newBlock, 2))
         res_ = self.extract_msg(res_)
         print(res_)
+        return 'accepted' in res_
 
 
 if __name__ == '__main__':
 
-    c = debug_client()
-    res = c.fetch('查询最新链')
-    res.debugOutputChain()
-
-    time.sleep(1)
-    c = miner_client()
-    res = c.mine('查询最新链')
-    c.update(res)
-    time.sleep(1)
+    for _ in range(10):
+        c = debug_client()
+        res = c.query()
+        res.debugOutputChain()
 
 
-    c = debug_client()
-    res = c.fetch('查询最新链')
-    res.debugOutputChain()
+        c = miner_client()
+        res = c.mine()
+        c.update(res)
+
+
     print("end")
 

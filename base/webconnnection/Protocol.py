@@ -58,8 +58,9 @@ class GCBPProtocol:
         assert protocol_format['msgType'] in [0, 1, 2], "msgType must be 0 or 1 or 2"
         return protocol_format
 
-    @staticmethod
-    def dump(data):
+
+    def dump(self, data):
+        assert self.check_format(data), "data must be a dict and contain keys 'msgType', 'msgLength', 'msgContent', 'timeStamp'"
         return pickle.dumps(data)
 
     def load(self, data):
