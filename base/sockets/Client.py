@@ -4,7 +4,7 @@ import random
 
 class client:
     def __init__(self):
-        self.host = ''
+        self.host = '127.0.0.1'
         self.port = 8848
         self.ADDR = (self.host, self.port)
         self.buffsize = 1024
