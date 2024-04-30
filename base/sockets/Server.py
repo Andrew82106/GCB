@@ -4,7 +4,7 @@ from Protocol import GCBPProtocol
 from WebConnection import webConnection
 
 
-class server(webConnection, GCBPProtocol):
+GCBPProtocol):
     """
     server类用于实现一个基于socket的服务器
 
