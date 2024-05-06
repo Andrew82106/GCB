@@ -56,6 +56,7 @@ class Pathconfig:
         self.utilsPath = os.path.join(self.basePath, "utils")
         self.socketsPath = os.path.join(self.basePath, "sockets")
         self.webconnection = os.path.join(self.basePath, "webconnection")
+        self.tempfiles = os.path.join(self.basePath, "tempfiles")
 
         # 区块链默认缓存路径
         self.blockchain_cache_path = os.path.join(self.basePath, "blockchain_cache")

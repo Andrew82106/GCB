@@ -3,13 +3,14 @@ from base.pathconfig import Pathconfig
 cfg = Pathconfig()
 
 from base.webconnnection.server import server
-from base.GCBChainStructure import Chain, Block
+from base.GCBChainStructure import Chain, Block, loadChain
 import socket
 from sanic import Sanic, raw
 import pickle
 
-
-debug_chain = Chain('000000000')
+debug_chain = loadChain()
+if not debug_chain:
+    debug_chain = Chain('000000000')
 
 
 class boardcastServer:
@@ -34,7 +35,9 @@ class boardcastServer:
             self.IP_list.append(ip)
 
     def update_chain(self, newBlock: Block):
-        return self.chain.createNewBlock(newBlock)
+        res = self.chain.createNewBlock(newBlock)
+        self.chain.chainLocalSaver()
+        return res
 
 
 class b_server(server):

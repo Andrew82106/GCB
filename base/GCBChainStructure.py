@@ -144,6 +144,9 @@ def loadChain(chainPth=cfg.blockchain_cache_path, filename=None):
     :param filename: 区块链文件名
     :return: 区块链
     """
+    # 如果chainPth文件夹不存在，则新建文件夹
+    if not os.path.exists(chainPth):
+        os.makedirs(chainPth)
     if filename is None:
         # 从chainPth读取所有子文件名
         filenames = os.listdir(chainPth)
@@ -157,10 +160,13 @@ def loadChain(chainPth=cfg.blockchain_cache_path, filename=None):
                 if mtime < t:
                     mtime = t
                     filename = name
-    assert filename is not None, "No chain file found"
+    if filename is None:
+        print("No chain file found")
+        return False
     # 从本地加载链
     with open(os.path.join(chainPth, filename), 'rb') as f:
         chain = pickle.load(f)
+    print(f"Loaded chain from {filename}")
     return chain
 
 

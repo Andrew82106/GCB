@@ -1,5 +1,7 @@
+import os.path
 import random
 from utils.hashTools import *
+from pathconfig import *
 from utils.publicKeyEncryption import pubEnc
 from utils.symmetricalEncryption import symEnc
 from wallet import *
@@ -8,6 +10,7 @@ import pickle
 hashTool = hashTool()
 pubEnc = pubEnc()
 symEnc = symEnc()
+pathcfg = Pathconfig()
 
 
 class User:
@@ -58,7 +61,7 @@ class User:
 
 class UserPool:
     """
-    UserPool类用于管理用户池，包括添加新用户、验证用户身份等操作。
+    UserPool类用于在本地管理用户池，包括添加新用户、验证用户身份等操作。
 
     Attributes:
         userPool (list): 用户池，存储所有用户的信息。
@@ -66,18 +69,29 @@ class UserPool:
     Methods:
         _addUser(address_): 添加新用户到用户池中。
         addNewUser(): 添加新用户到用户池中，并返回新用户的地址。
+        login(): 验证用户身份，并返回用户对象。
+        load_userpool_from_pkl(): 从pkl文件中加载用户池。
+        save_userpool_to_pkl(): 将用户池保存到pkl文件中。
+        refreshUserPool(): 刷新用户池。
+
     """
     def __init__(self):
         self.userPool = []
         # 添加类型提示
         self.userPool: list[User]
 
-    def load_userpool_from_pkl(self, poolPath):
+    def refreshUserPool(self):
+        # 刷新用户池
+        self.userPool = []
+
+    def load_userpool_from_pkl(self, poolPath=os.path.join(pathcfg.tempfiles, 'userpool.pkl')):
         # 从pkl文件中加载用户池
+        if not os.path.exists(poolPath):
+            return
         with open(poolPath, 'rb') as f:
             self.userPool = pickle.load(f)
 
-    def save_userpool_to_pkl(self, poolPath):
+    def save_userpool_to_pkl(self, poolPath=os.path.join(pathcfg.tempfiles, 'userpool.pkl')):
         # 将用户池保存到pkl文件中
         with open(poolPath, 'wb') as f:
             pickle.dump(self.userPool, f)
