@@ -12,14 +12,14 @@ class server(GCBPProtocol, HTTPMethodView):
         """
         客户端向服务器发送更新请求，服务器流式发送更新数据
 
-        此处测试数据为['data', '1111', '2222']
+        此处测试数据为['data_', '1111', '2222']
         :param request:
-        :param data:
+        :param data_:
         :return:
         """
         response = await request.respond(content_type="text/text")
         # 将data转化为字节码，使用pickle
-        data = self.dump(['data', '1111', '2222'])
+        data = self.dump(['data_', '1111', '2222'])
         await response.send(data)
         await response.eof()
 

@@ -60,7 +60,7 @@ class GCBPProtocol:
 
 
     def dump(self, data):
-        assert self.check_format(data), "data must be a dict and contain keys 'msgType', 'msgLength', 'msgContent', 'timeStamp'"
+        assert self.check_format(data), "data_ must be a dict and contain keys 'msgType', 'msgLength', 'msgContent', 'timeStamp'"
         return pickle.dumps(data)
 
     def load(self, data):

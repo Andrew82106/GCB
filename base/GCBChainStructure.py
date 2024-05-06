@@ -2,6 +2,7 @@ import os.path
 from pathconfig import Pathconfig
 from utils.hashTools import *
 from Transactions import Transaction, MerkleTree
+from config import *
 import pickle
 from typing import List
 cfg = Pathconfig()
@@ -35,7 +36,7 @@ class Block:
         return len(self.data)
 
     def _generate_hash(self):
-        # 返回由prehash、timestamp、data、nonce生成的哈希值
+        # 返回由prehash、timestamp、data_、nonce生成的哈希值
         hashLst = [self.prehash, str(self.timestamp), str(self.data), str(self.nonce)]
         hashStr = ''.join(hashLst)
         return hashTool.hashFunc(hashStr)
@@ -79,9 +80,10 @@ class Chain:
 
     def _createGenesisBlock(self):
         # 创建创世交易
-        genesisTransaction = Transaction(self._minerAddress, '0', 0, time.time_ns())
+        genesisTransaction = Transaction("", ChainMan, 114514, time.time_ns())
+        genesisTransaction1 = Transaction("", self._minerAddress, 114514, time.time_ns())
         # 创建创世区块的Merkle树
-        genesisMerkleTree = MerkleTree([genesisTransaction])
+        genesisMerkleTree = MerkleTree([genesisTransaction, genesisTransaction1])
         # 将创世交易添加到创世区块中
         self.Blocks.append(Block(genesisMerkleTree, 0, self._initHash))
 
@@ -91,6 +93,16 @@ class Chain:
             if Hash[index] != '0':
                 return False
         return True
+
+    def calculateAssets(self, address):
+        # 计算address在链中的资产
+        assets = 0
+        for tx in self.latestBlock.data.MTreeLst:
+            if tx.recipient == address:
+                assets += tx.amount
+            if tx.sender == address:
+                assets -= tx.amount
+        return assets
 
     def chainLocalSaver(self, chainPath=cfg.blockchain_cache_path, filename=f'chain_timestamp_{time.time_ns()}.pkl'):
         # 将链存到本地，以pkl的形式存储
@@ -132,6 +144,9 @@ def loadChain(chainPth=cfg.blockchain_cache_path, filename=None):
     :param filename: 区块链文件名
     :return: 区块链
     """
+    # 如果chainPth文件夹不存在，则新建文件夹
+    if not os.path.exists(chainPth):
+        os.makedirs(chainPth)
     if filename is None:
         # 从chainPth读取所有子文件名
         filenames = os.listdir(chainPth)
@@ -145,10 +160,13 @@ def loadChain(chainPth=cfg.blockchain_cache_path, filename=None):
                 if mtime < t:
                     mtime = t
                     filename = name
-    assert filename is not None, "No chain file found"
+    if filename is None:
+        print("No chain file found")
+        return False
     # 从本地加载链
     with open(os.path.join(chainPth, filename), 'rb') as f:
         chain = pickle.load(f)
+    print(f"Loaded chain from {filename}")
     return chain
 
 

@@ -26,3 +26,32 @@
 from base.pathconfig import Pathconfig
 cfg = Pathconfig()
 ```
+
+# base structure
+
+```text
+- base
+|
+|- utils
+|   |- hashTools.py
+|   |- keyGenerator.py
+|
+|- webconnection
+|   |- client.py
+|   |- server.py
+|   |- Protocol.py
+|   |- start_server.bash
+|
+|- GCBChainStructure.py
+|- pathconfig.py
+|- Transaction.py
+|- User.py
+|- Miner.py
+|- wallet.py
+|- readme.md
+```
+
+# 项目运行流程
+
+- 广播服务器运行，初始状态添加创世区块，持续运行
+- 客户端（挖矿客户端和钱包客户端）运行，首先在本机进行账户登录和验证，验证完成后进行交易、查询或者挖矿操作

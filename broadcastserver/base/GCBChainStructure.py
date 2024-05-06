@@ -32,7 +32,7 @@ class Block:
         self.block_hash = self._generate_hash()  # 本区块哈希
 
     def _generate_hash(self):
-        # 返回由prehash、timestamp、data、nonce生成的哈希值
+        # 返回由prehash、timestamp、data_、nonce生成的哈希值
         hashLst = [self.prehash, str(self.timestamp), str(self.data), str(self.nonce)]
         hashStr = ''.join(hashLst)
         return hashTool.hashFunc(hashStr)

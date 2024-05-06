@@ -28,7 +28,7 @@ def tcpServer():
                     print('接收请求信息。。。。。')
                     # 接收请求信息
                     data = conn.recv(BUFFSIZE)
-                    print('data=%s' % data)
+                    print('data_=%s' % data)
                     print('接收数据：{!r}'.format(data.decode('utf-8')))
 
                     # 发送请求数据

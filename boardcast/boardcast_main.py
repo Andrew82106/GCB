@@ -3,18 +3,27 @@ from base.pathconfig import Pathconfig
 cfg = Pathconfig()
 
 from base.webconnnection.server import server
-from base.GCBChainStructure import Chain, Block
+from base.GCBChainStructure import Chain, Block, loadChain
 import socket
 from sanic import Sanic, raw
 import pickle
 
-
-debug_chain = Chain('000000000')
+debug_chain = loadChain()
+if not debug_chain:
+    debug_chain = Chain('000000000')
 
 
 class boardcastServer:
     """
     boardcastServer类用于实现广播服务器中的数据存储部分，网络接口部分由b_server类负责
+
+    Attributes:
+        IP_list (list): 用于存储所有客户端的IP地址
+        chain (Chain): 用于存储区块链
+
+    Methods:
+        _update_IP_list(ip): 更新IP_list列表
+        update_chain(newBlock: Block): 更新区块链
 
     """
     def __init__(self, chain: Chain):
@@ -26,12 +35,23 @@ class boardcastServer:
             self.IP_list.append(ip)
 
     def update_chain(self, newBlock: Block):
-        return self.chain.createNewBlock(newBlock)
+        res = self.chain.createNewBlock(newBlock)
+        self.chain.chainLocalSaver()
+        return res
 
 
 class b_server(server):
     """
     b_server类用于实现广播服务器中的网络接口部分，数据存储部分由boardcastServer类负责
+
+    Attributes:
+        chainOperator (boardcastServer): 用于存储区块链和客户端IP地址的类
+
+    Methods:
+        __init__(self): 初始化b_server类
+        get(self, request): 处理客户端的GET请求
+        post(self, request): 处理客户端的POST请求
+
     """
     def __init__(self):
         super().__init__()
@@ -66,7 +86,7 @@ class b_server(server):
         cont = request.body
         # 将字节码转化为data
         data = self.load(cont)
-        print(data)
+        # print(data_)
         block = self.extract_msg(data)
         if self.chainOperator.update_chain(block):
             send_back = self.GCBmsg('new block accepted', 0)
