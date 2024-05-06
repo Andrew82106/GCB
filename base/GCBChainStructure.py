@@ -2,6 +2,7 @@ import os.path
 from pathconfig import Pathconfig
 from utils.hashTools import *
 from Transactions import Transaction, MerkleTree
+from config import *
 import pickle
 from typing import List
 cfg = Pathconfig()
@@ -79,9 +80,10 @@ class Chain:
 
     def _createGenesisBlock(self):
         # 创建创世交易
-        genesisTransaction = Transaction(self._minerAddress, '0', 0, time.time_ns())
+        genesisTransaction = Transaction("", ChainMan, 114514, time.time_ns())
+        genesisTransaction1 = Transaction("", self._minerAddress, 114514, time.time_ns())
         # 创建创世区块的Merkle树
-        genesisMerkleTree = MerkleTree([genesisTransaction])
+        genesisMerkleTree = MerkleTree([genesisTransaction, genesisTransaction1])
         # 将创世交易添加到创世区块中
         self.Blocks.append(Block(genesisMerkleTree, 0, self._initHash))
 
@@ -91,6 +93,16 @@ class Chain:
             if Hash[index] != '0':
                 return False
         return True
+
+    def calculateAssets(self, address):
+        # 计算address在链中的资产
+        assets = 0
+        for tx in self.latestBlock.data.MTreeLst:
+            if tx.recipient == address:
+                assets += tx.amount
+            if tx.sender == address:
+                assets -= tx.amount
+        return assets
 
     def chainLocalSaver(self, chainPath=cfg.blockchain_cache_path, filename=f'chain_timestamp_{time.time_ns()}.pkl'):
         # 将链存到本地，以pkl的形式存储

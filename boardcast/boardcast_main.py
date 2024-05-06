@@ -16,6 +16,14 @@ class boardcastServer:
     """
     boardcastServer类用于实现广播服务器中的数据存储部分，网络接口部分由b_server类负责
 
+    Attributes:
+        IP_list (list): 用于存储所有客户端的IP地址
+        chain (Chain): 用于存储区块链
+
+    Methods:
+        _update_IP_list(ip): 更新IP_list列表
+        update_chain(newBlock: Block): 更新区块链
+
     """
     def __init__(self, chain: Chain):
         self.IP_list = []
@@ -32,6 +40,15 @@ class boardcastServer:
 class b_server(server):
     """
     b_server类用于实现广播服务器中的网络接口部分，数据存储部分由boardcastServer类负责
+
+    Attributes:
+        chainOperator (boardcastServer): 用于存储区块链和客户端IP地址的类
+
+    Methods:
+        __init__(self): 初始化b_server类
+        get(self, request): 处理客户端的GET请求
+        post(self, request): 处理客户端的POST请求
+
     """
     def __init__(self):
         super().__init__()
@@ -66,7 +83,7 @@ class b_server(server):
         cont = request.body
         # 将字节码转化为data
         data = self.load(cont)
-        print(data)
+        # print(data)
         block = self.extract_msg(data)
         if self.chainOperator.update_chain(block):
             send_back = self.GCBmsg('new block accepted', 0)

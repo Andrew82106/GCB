@@ -26,3 +26,27 @@
 from base.pathconfig import Pathconfig
 cfg = Pathconfig()
 ```
+
+# base structure
+
+```text
+- base
+|
+|- utils
+|   |- hashTools.py
+|   |- keyGenerator.py
+|
+|- webconnection
+|   |- client.py
+|   |- server.py
+|   |- Protocol.py
+|   |- start_server.bash
+|
+|- GCBChainStructure.py
+|- pathconfig.py
+|- Transaction.py
+|- User.py
+|- Miner.py
+|- wallet.py
+|- readme.md
+```
