@@ -83,7 +83,7 @@ class b_server(server):
         cont = request.body
         # 将字节码转化为data
         data = self.load(cont)
-        # print(data)
+        # print(data_)
         block = self.extract_msg(data)
         if self.chainOperator.update_chain(block):
             send_back = self.GCBmsg('new block accepted', 0)

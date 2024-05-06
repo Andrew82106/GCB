@@ -6,6 +6,18 @@ from base.webconnnection.Protocol import GCBPProtocol
 
 
 class client(GCBPProtocol):
+    """
+    client 类用于向服务器发送请求
+
+    Attributes:
+        host: 服务器地址
+        port: 服务器端口
+
+    Methods:
+        get: 向服务器发送get请求
+        post: 向服务器发送post请求
+
+    """
     def __init__(self):
         super().__init__()
 
