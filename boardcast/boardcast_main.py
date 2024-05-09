@@ -66,10 +66,10 @@ class b_server(server):
         :return: None（由于是流式传输，因此不用返回值这种方式回传数据）
         """
         response = await request.respond(content_type="text/text")
-        print(self.debugmsg(f"get request received, response length= {len(str(response))}, sending chain..."))
+        print(self.debugmsg(f"get request received, response length= {len(str(response))}, sending chain...", savefile=cfg.log_cache_path))
         # 将data转化为字节码，使用pickle
         data = self.dump(self.GCBmsg(self.chainOperator.chain, 1))
-        print(self.debugmsg(f"sending data with length = {len(data)}"))
+        print(self.debugmsg(f"sending data with length = {len(data)}", savefile=cfg.log_cache_path))
         await response.send(data)
         await response.eof()
 
@@ -87,16 +87,19 @@ class b_server(server):
         # 将字节码转化为data
         data = self.load(cont)
         # print(data_)
-        print(self.debugmsg(f"post request received（request.body length={len(cont)}）"))
+        print(self.debugmsg(f"post request received（request.body length={len(cont)}）", savefile=cfg.log_cache_path))
         block = self.extract_msg(data)
         if self.chainOperator.update_chain(block):
             send_back = self.GCBmsg('new block accepted', 0)
         else:
             send_back = self.GCBmsg('new block rejected', 0)
 
-        print(self.debugmsg(f"post response sent（response.body length={len(send_back)}）"))
+        print(self.debugmsg(f"post response sent（response.body length={len(send_back)}）", savefile=cfg.log_cache_path))
         return raw(self.dump(send_back))
 
 
 app = Sanic("GCBBoardCastServer")
 app.add_route(b_server.as_view(), "/")
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=8000)

@@ -49,9 +49,12 @@ class GCBPProtocol:
         self.host = host
         self.timeformat = '%Y-%m-%d %H:%M:%S'
 
-    def debugmsg(self, message):
+    def debugmsg(self, message, savefile=None):
         # 按照规定的格式输出调试信息
         # 规定的格式包含时间戳Y-M-D HH：MM：SS和信息内容
+        if savefile:
+            with open(savefile, 'a') as f:
+                f.write(f"<{time.strftime(self.timeformat, time.localtime())}>: {message}")
         return f"<{time.strftime(self.timeformat, time.localtime())}>: {message}"
 
     def GCBmsg(self, msg, msgType):

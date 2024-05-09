@@ -1,4 +1,4 @@
-FROM sanicframework/sanic:3.8-latest
+FROM --platform=$BUILDPLATFORM sanicframework/sanic:3.8-latest
 
 LABEL authors="andrewlee"
 
@@ -14,4 +14,4 @@ RUN pip install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
 
 EXPOSE 8000
 
-CMD ["sanic", "boardcast_main"]
+CMD ["python", "boardcast_main.py"]

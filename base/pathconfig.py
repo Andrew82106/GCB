@@ -61,6 +61,8 @@ class Pathconfig:
         # 区块链默认缓存路径
         self.blockchain_cache_path = os.path.join(self.basePath, "blockchain_cache")
 
+        # 系统log缓存路径
+        self.log_cache_path = os.path.join(self.tempfiles, "log_cache.txt")
         # 添加系统路径
         self._add_sys_pth()
 
