@@ -5,8 +5,8 @@ import pickle
 
 
 class server(GCBPProtocol, HTTPMethodView):
-    def __init__(self):
-        GCBPProtocol.__init__(self)
+    def __init__(self, host, port):
+        GCBPProtocol.__init__(self, host, port)
 
     async def get(self, request):
         """
@@ -14,7 +14,7 @@ class server(GCBPProtocol, HTTPMethodView):
 
         此处测试数据为['data_', '1111', '2222']
         :param request:
-        :param data_:
+        :param data: 服务器返回的数据
         :return:
         """
         response = await request.respond(content_type="text/text")

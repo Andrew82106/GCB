@@ -18,8 +18,8 @@ class client(GCBPProtocol):
         post: 向服务器发送post请求
 
     """
-    def __init__(self):
-        super().__init__()
+    def __init__(self, host, port):
+        super().__init__(host, port)
 
     def get(self):
         """

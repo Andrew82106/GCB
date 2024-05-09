@@ -14,18 +14,27 @@ class GCBPProtocol:
         - 'timeStamp' (int): 时间戳，以纳秒为单位
 
         msg_per_length (int): TCP发送消息时每条消息的单位长度限制
+        buffsize (int): TCP发送缓冲区大小
+        backlog (int): TCP监听队列长度
+        encoding (str): 编码方式
+        port (int): TCP端口号
+        host (str): TCP主机地址
+        timeformat (str): 时间戳格式
 
     Methods:
-        GCBmsg(msg, msgType): 生成符合GCB协议格式的消息=
+        GCBmsg(msg, msgType): 生成符合GCB协议格式的消息
         extract_msg(msg): 提取消息内容
         extract_msg_type(msg): 提取消息类型
         extract_msg_length(msg): 提取消息长度
         extract_time_stamp(msg): 提取时间戳
         check_format(GCBmsg): 检查输入值GCBmsg是否符合GCB格式
+        dump(data): 将数据转换为符合GCB协议格式的二进制数据
+        load(data): 将二进制数据转换为符合GCB协议格式的数据
+        debugmsg(message): 按照规定的格式输出调试信息
 
     """
 
-    def __init__(self):
+    def __init__(self, host, port):
         self.protocol_format_ = {
             'msgType': 0,
             'msgLength': 0,
@@ -36,8 +45,14 @@ class GCBPProtocol:
         self.buffsize = 1024
         self.backlog = 5
         self.encoding = 'utf-8'
-        self.port = 8000
-        self.host = '127.0.0.1'
+        self.port = port
+        self.host = host
+        self.timeformat = '%Y-%m-%d %H:%M:%S'
+
+    def debugmsg(self, message):
+        # 按照规定的格式输出调试信息
+        # 规定的格式包含时间戳Y-M-D HH：MM：SS和信息内容
+        return f"<{time.strftime(self.timeformat, time.localtime())}>: {message}"
 
     def GCBmsg(self, msg, msgType):
         """

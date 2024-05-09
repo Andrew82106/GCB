@@ -18,8 +18,8 @@ class miner_client(client):
     """
     模拟一个客户端代码（挖矿并请求添加）
     """
-    def __init__(self, address_):
-        super().__init__()
+    def __init__(self, address_, host, port):
+        super().__init__(host, port)
         self.address = address_
 
     def mine(self, sender='sender', recipent='recipent', amount=10) -> Chain:
@@ -78,6 +78,9 @@ class miner_client(client):
         return assets
 
 
+host = '127.0.0.1'
+port = 8000
+
 # 首先登录
 op = input("1. login\n2. add user\n3. exit\n")
 username = None
@@ -114,7 +117,7 @@ elif op == "3":
 assert username is not None and password is not None, "username and password must be not None"
 user: User
 address = user.address
-client_instance = miner_client(address)
+client_instance = miner_client(address, host, port)
 # 开始处理循环
 while 1:
     op = input("1. query chain\n2. queryAssets\n3. mineTranscation\n4. exit\n")

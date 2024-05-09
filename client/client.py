@@ -14,8 +14,8 @@ class wallet_client(client):
     """
     模拟一个客户端代码（只查询）
     """
-    def __init__(self, _address):
-        super().__init__()
+    def __init__(self, _address, host, port):
+        super().__init__(host, port)
         self.address = _address
 
     def query(self):
@@ -39,6 +39,9 @@ class wallet_client(client):
         assets_ = chain_.calculateAssets(self.address)
         return assets_
 
+
+host = "127.0.0.1"
+port = 8000
 
 # 首先登录
 op = input("1. login\n2. add user\n3. exit\n")
@@ -76,7 +79,7 @@ elif op == "3":
 assert username is not None and password is not None, "username and password must be not None"
 user: User
 address = user.address
-client_instance = wallet_client(address)
+client_instance = wallet_client(address, host, port)
 # 开始处理循环
 while 1:
     op = input("1. query\n2. queryAssets\n3. exit\n")

@@ -18,8 +18,8 @@ class debug_client(client):
     """
     模拟一个客户端代码（只查询）
     """
-    def __init__(self, address):
-        super().__init__()
+    def __init__(self, address, host_, port_):
+        super().__init__(host_, port_)
         self.address = address
 
     def query(self):
@@ -48,8 +48,8 @@ class miner_client(client):
     """
     模拟一个客户端代码（挖矿并请求添加）
     """
-    def __init__(self, address):
-        super().__init__()
+    def __init__(self, address, host, port):
+        super().__init__(host, port)
         self.address = address
 
     def mine(self, sender='sender', recipent='recipent', amount=10) -> Chain:
@@ -100,10 +100,12 @@ class miner_client(client):
 
 
 if __name__ == '__main__':
+    host = '127.0.0.1'
+    port = 8080
     # 创建一个新用户
-    userAddress = userPool.addNewUser()
+    userAddress = userPool.addNewUser(host, port)
     # 创建一个调试客户端
-    dc = debug_client(userAddress)
+    dc = debug_client(userAddress, host, port)
     # 查询客户端
     res = dc.query()
     # 输出客户端链信息
@@ -113,9 +115,9 @@ if __name__ == '__main__':
     print(f"dc_assets: {dc_assets}")
 
     # 创建一个新用户
-    userAddress1 = userPool.addNewUser()
+    userAddress1 = userPool.addNewUser(host, port)
     # 创建一个矿工客户端
-    c = miner_client(userAddress1)
+    c = miner_client(userAddress1, host, port)
     # 挖矿，发送者是ChainMan，接收者是userAddress，金额是1000
     res = c.mine(sender=ChainMan, recipent=userAddress, amount=1000)
     # 如果挖矿成功，更新客户端
